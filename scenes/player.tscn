@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://b34sdjm47f028"]
+
+[ext_resource type="Texture2D" uid="uid://0gifevpera76" path="res://graphics/ships/ship.png" id="1_p46kh"]
+
+[node name="player" type="Node2D"]
+position = Vector2(22, 52)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_p46kh")

@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://c53a2olf4usyb"]
+
+[ext_resource type="Texture2D" uid="uid://dlddx6qmt33up" path="res://graphics/ships/background.png" id="1_isl5v"]
+[ext_resource type="PackedScene" uid="uid://b34sdjm47f028" path="res://scenes/player.tscn" id="1_nyrhu"]
+
+[node name="Room" type="Node2D"]
+
+[node name="BG" type="Sprite2D" parent="."]
+position = Vector2(90, 98)
+scale = Vector2(5.724, 2.086)
+texture = ExtResource("1_isl5v")
+
+[node name="player2" parent="." instance=ExtResource("1_nyrhu")]
+position = Vector2(38, 38)
+
+[node name="Camera2D" type="Camera2D" parent="player2"]
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(100, 100)
