@@ -13,7 +13,5 @@ texture = ExtResource("1_isl5v")
 [node name="player2" parent="." instance=ExtResource("1_nyrhu")]
 position = Vector2(38, 38)
 
-[node name="Camera2D" type="Camera2D" parent="player2"]
-
 [node name="SubViewport" type="SubViewport" parent="."]
 size = Vector2i(100, 100)
