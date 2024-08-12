@@ -1,17 +1,82 @@
-[gd_scene load_steps=3 format=3 uid="uid://c53a2olf4usyb"]
+[gd_scene load_steps=7 format=3 uid="uid://c53a2olf4usyb"]
 
-[ext_resource type="Texture2D" uid="uid://dlddx6qmt33up" path="res://graphics/ships/background.png" id="1_isl5v"]
+[ext_resource type="Texture2D" uid="uid://dlddx6qmt33up" path="res://sprites/ships/background.png" id="1_isl5v"]
 [ext_resource type="PackedScene" uid="uid://b34sdjm47f028" path="res://scenes/player.tscn" id="1_nyrhu"]
+[ext_resource type="PackedScene" uid="uid://befan43qb5q81" path="res://scenes/meteor_big.tscn" id="4_xkcr3"]
+
+[sub_resource type="GDScript" id="GDScript_dsoed"]
+script/source = "extends Node2D
+
+var meteor_scene_big: PackedScene = load(\"res://scenes/meteor_big.tscn\")
+func _ready():
+	pass
+func _on_meteor_timer_timeout():
+	var rng := RandomNumberGenerator.new()
+	var random_number = rng.randi_range(1,3)
+	#creating meteor. think of instantiate as instance create from gamemaker
+	var meteor = meteor_scene_big.instantiate()
+	#assigning meteor to the room
+	$Meteors.add_child(meteor)
+	#dollar sign is exactly the same as get_node, except that it saves you a couple keystrokes
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v4c3r"]
+size = Vector2(20, 494)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5hev1"]
+size = Vector2(658, 20)
 
 [node name="Room" type="Node2D"]
+script = SubResource("GDScript_dsoed")
 
 [node name="BG" type="Sprite2D" parent="."]
-position = Vector2(90, 98)
-scale = Vector2(5.724, 2.086)
+position = Vector2(157, 119)
+scale = Vector2(0.64, 0.484)
 texture = ExtResource("1_isl5v")
 
-[node name="player2" parent="." instance=ExtResource("1_nyrhu")]
-position = Vector2(38, 38)
+[node name="player" parent="." instance=ExtResource("1_nyrhu")]
+position = Vector2(160, 120)
 
-[node name="SubViewport" type="SubViewport" parent="."]
-size = Vector2i(100, 100)
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(0, 138)
+shape = SubResource("RectangleShape2D_v4c3r")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="StaticBody2D"]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D/StaticBody2D"]
+position = Vector2(320, 104)
+shape = SubResource("RectangleShape2D_v4c3r")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="."]
+position = Vector2(137, 3)
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
+position = Vector2(20, -2)
+shape = SubResource("RectangleShape2D_5hev1")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="StaticBody2D2"]
+position = Vector2(137, 3)
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2/StaticBody2D2"]
+position = Vector2(-105, 235)
+shape = SubResource("RectangleShape2D_5hev1")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(160, 120)
+zoom = Vector2(4, 4)
+
+[node name="meteor_big" parent="." instance=ExtResource("4_xkcr3")]
+position = Vector2(216, 67)
+
+[node name="meteor_timer" type="Timer" parent="."]
+autostart = true
+
+[node name="Meteors" type="Node2D" parent="."]
+
+[connection signal="timeout" from="meteor_timer" to="." method="_on_meteor_timer_timeout"]
