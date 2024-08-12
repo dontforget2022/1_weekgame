@@ -8,6 +8,7 @@
 script/source = "extends Node2D
 
 var meteor_scene_big: PackedScene = load(\"res://scenes/meteor_big.tscn\")
+var laser_scene: PackedScene = load(\"res://laser.tscn\") #loading lasers
 func _ready():
 	pass
 func _on_meteor_timer_timeout():
@@ -18,6 +19,13 @@ func _on_meteor_timer_timeout():
 	#assigning meteor to the room
 	$Meteors.add_child(meteor)
 	#dollar sign is exactly the same as get_node, except that it saves you a couple keystrokes
+
+
+func _on_player_laser(pos):
+	var laser = laser_scene.instantiate()
+	$Lasers.add_child(laser) # adding child
+	laser.position = pos #seetting position
+	
 "
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v4c3r"]
@@ -79,4 +87,7 @@ autostart = true
 
 [node name="Meteors" type="Node2D" parent="."]
 
+[node name="Lasers" type="Node2D" parent="."]
+
+[connection signal="laser" from="player" to="." method="_on_player_laser"]
 [connection signal="timeout" from="meteor_timer" to="." method="_on_meteor_timer_timeout"]
