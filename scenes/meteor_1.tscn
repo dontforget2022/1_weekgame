@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://befan43qb5q81"]
+
+[ext_resource type="Script" path="res://scenes/scripts/meteor_big.gd" id="1_p1r0r"]
+[ext_resource type="Texture2D" uid="uid://dv1qyv2icim8c" path="res://sprites/meteors/spr_meteor_1.png" id="2_3lr0t"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gco0k"]
+radius = 8.06226
+
+[node name="meteor_1" type="Area2D"]
+collision_layer = 2
+script = ExtResource("1_p1r0r")
+
+[node name="coll" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_gco0k")
+
+[node name="spr_meteor" type="Sprite2D" parent="."]
+texture = ExtResource("2_3lr0t")
+
+[node name="deathpart" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 20
+one_shot = true
+explosiveness = 1.0
+randomness = 0.33
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 50.51
+initial_velocity_max = 80.81
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

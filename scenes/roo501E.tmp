@@ -1,0 +1,337 @@
+[gd_scene load_steps=19 format=3 uid="uid://c53a2olf4usyb"]
+
+[ext_resource type="Texture2D" uid="uid://dlddx6qmt33up" path="res://sprites/ships/background.png" id="1_isl5v"]
+[ext_resource type="PackedScene" uid="uid://b34sdjm47f028" path="res://scenes/player.tscn" id="1_nyrhu"]
+[ext_resource type="Texture2D" uid="uid://chccwrsfler7q" path="res://sprites/stars1.png" id="4_qto8b"]
+[ext_resource type="PackedScene" uid="uid://befan43qb5q81" path="res://scenes/meteor_1.tscn" id="4_xkcr3"]
+[ext_resource type="Texture2D" uid="uid://cbt678ksyxdyx" path="res://sprites/stars2.png" id="5_1o64q"]
+[ext_resource type="Texture2D" uid="uid://btax3h5556t5w" path="res://sprites/stars3.png" id="6_5qxsc"]
+[ext_resource type="Texture2D" uid="uid://xxuq1nodx082" path="res://sprites/stars4.png" id="7_7jhur"]
+[ext_resource type="Texture2D" uid="uid://dhdyq07v2uk53" path="res://sprites/stars5.png" id="8_kb5vs"]
+[ext_resource type="Texture2D" uid="uid://dya1ltuv6ixeo" path="res://sprites/stars6.png" id="9_0ubh2"]
+[ext_resource type="Texture2D" uid="uid://64n5x8ehfd44" path="res://sprites/stars7.png" id="10_r7vvr"]
+[ext_resource type="Script" path="res://UItscn.gd" id="11_p0ms2"]
+[ext_resource type="FontFile" uid="uid://dw417g0437h32" path="res://fonts/DTM-Sans.otf" id="12_ij60q"]
+[ext_resource type="Texture2D" uid="uid://dhgahdr5u5mf" path="res://sprites/hp/spr_hp1.png" id="13_3exj7"]
+[ext_resource type="AudioStream" uid="uid://opiwouk482uv" path="res://mus_explosion.wav" id="14_ddr6c"]
+
+[sub_resource type="GDScript" id="GDScript_dsoed"]
+script/source = "extends Node2D
+var health: int = 4
+var meteor_scene_big: PackedScene = load(\"res://scenes/meteor_1.tscn\")
+var meteor_scene_mid: PackedScene = load(\"res://scenes/meteor_2.tscn\")
+var meteor_scene_sml: PackedScene = load(\"res://scenes/meteor_3.tscn\")
+var laser_scene: PackedScene = load(\"res://laser.tscn\") #loading lasers
+var score: int = 10
+func _ready():
+	var size_x = 320
+	var size_y = 240
+	var rng = RandomNumberGenerator.new()
+	for star in $Stars.get_children(): #you don't need to declare star variable like in gamemaker
+		#position
+		var random_x = rng.randi_range(0,320)
+		var random_y = rng.randi_range(0,240)
+		star.position = Vector2(random_x,random_y)
+		#speed
+		star.speed_scale = rng.randf_range(0.6,1.4)
+func _on_meteor_timer_timeout():
+	var rng := RandomNumberGenerator.new()
+	var random_number = rng.randi_range(1,3)
+	#creating meteor. think of instantiate as instance create from gamemake
+	if random_number == 1:
+		var meteor = meteor_scene_big.instantiate()
+		$Meteors.add_child(meteor)
+	if random_number == 2:
+		var meteor = meteor_scene_mid.instantiate()
+		$Meteors.add_child(meteor)
+	if random_number == 3:
+		var meteor = meteor_scene_sml.instantiate()
+		$Meteors.add_child(meteor)
+	#assigning meteor to the room
+	
+	#dollar sign is exactly the same as get_node, except that it saves you a couple keystrokes
+	meteor.connect(\"collision\", _on_meteor_collision)
+func _on_meteor_collision():
+	print(\"yes\")
+	if $player.inv_frames == false:
+		$player/hurt.play()
+		$player.inv_frames = true
+		$player/inv_frames_timer.start()
+		health -= 1
+	
+	# call_group(Name of your group, method you want to call, variable you wanna pass into that)
+	if health <= 0:
+		get_tree().change_scene_to_file(\"res://game_over.tscn\")
+func _on_player_laser(pos):
+	var laser = laser_scene.instantiate()
+	$Lasers.add_child(laser) # adding child
+	laser.connect(\"music\", _on_laser_music)
+	laser.position = pos #seetting position
+	
+func _on_laser_music():
+	$AudioStreamPlayer2D.play()
+
+func _process(delta):
+	$UI2/MarginContainer/score.text = \"Score:\" + str(GlobalData.score)
+	
+
+
+
+
+
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v4c3r"]
+size = Vector2(20, 494)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5hev1"]
+size = Vector2(658, 20)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_56brv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_qto8b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_1o64q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_5qxsc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_7jhur")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_kb5vs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_0ubh2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_r7vvr")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Room" type="Node2D"]
+script = SubResource("GDScript_dsoed")
+
+[node name="BG" type="Sprite2D" parent="."]
+position = Vector2(163, 119)
+scale = Vector2(0.664, 0.484)
+texture = ExtResource("1_isl5v")
+
+[node name="player" parent="." instance=ExtResource("1_nyrhu")]
+z_index = 2
+position = Vector2(160, 120)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-13, 138)
+shape = SubResource("RectangleShape2D_v4c3r")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="StaticBody2D"]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D/StaticBody2D"]
+position = Vector2(339, 104)
+shape = SubResource("RectangleShape2D_v4c3r")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="."]
+position = Vector2(137, 3)
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
+position = Vector2(21, -14)
+shape = SubResource("RectangleShape2D_5hev1")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="StaticBody2D2"]
+position = Vector2(137, 3)
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2/StaticBody2D2"]
+position = Vector2(-106, 243)
+shape = SubResource("RectangleShape2D_5hev1")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(160, 120)
+zoom = Vector2(4, 4)
+
+[node name="meteor_big" parent="." instance=ExtResource("4_xkcr3")]
+position = Vector2(216, 67)
+
+[node name="meteor_timer" type="Timer" parent="."]
+autostart = true
+
+[node name="Meteors" type="Node2D" parent="."]
+z_index = 2
+
+[node name="Lasers" type="Node2D" parent="."]
+
+[node name="Stars" type="Node2D" parent="."]
+z_index = 1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.811289
+
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D3" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D4" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D5" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.264159
+
+[node name="AnimatedSprite2D6" type="AnimatedSprite2D" parent="Stars"]
+z_index = -1
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D7" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D8" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D9" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.264159
+
+[node name="AnimatedSprite2D10" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D11" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D12" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D13" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.264159
+
+[node name="AnimatedSprite2D14" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D15" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D16" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D17" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.264159
+
+[node name="AnimatedSprite2D18" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D19" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="AnimatedSprite2D20" type="AnimatedSprite2D" parent="Stars"]
+sprite_frames = SubResource("SpriteFrames_56brv")
+autoplay = "default"
+frame_progress = 0.222029
+
+[node name="UI2" type="CanvasLayer" parent="."]
+script = ExtResource("11_p0ms2")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI2"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -105.0
+offset_right = 105.0
+offset_bottom = 48.0
+grow_horizontal = 2
+
+[node name="score" type="Label" parent="UI2/MarginContainer"]
+texture_filter = 3
+layout_mode = 2
+theme_override_fonts/font = ExtResource("12_ij60q")
+theme_override_font_sizes/font_size = 40
+text = "Score:"
+
+[node name="MarginContainer2" type="MarginContainer" parent="UI2"]
+z_index = 1
+offset_right = 48.0
+offset_bottom = 40.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI2/MarginContainer2"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="UI2/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("13_3exj7")
+stretch_mode = 2
+
+[node name="TextureRect2" type="TextureRect" parent="UI2/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("13_3exj7")
+stretch_mode = 2
+
+[node name="TextureRect3" type="TextureRect" parent="UI2/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("13_3exj7")
+stretch_mode = 2
+
+[node name="TextureRect4" type="TextureRect" parent="UI2/MarginContainer2/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("13_3exj7")
+stretch_mode = 2
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("14_ddr6c")
+
+[node name="meteor_big2" parent="." instance=ExtResource("4_xkcr3")]
+position = Vector2(81, 48)
+
+[node name="meteor_big2" parent="meteor_big2" instance=ExtResource("4_xkcr3")]
+position = Vector2(-11, 85)
+
+[connection signal="laser" from="player" to="." method="_on_player_laser"]
+[connection signal="timeout" from="meteor_timer" to="." method="_on_meteor_timer_timeout"]

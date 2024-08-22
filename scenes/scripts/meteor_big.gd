@@ -2,14 +2,23 @@ extends Area2D
 var speed: int
 var rotation_speed: int
 var direction_x: float
+var ran_meteor: int 
+var size: int
+signal collision
+
 func _ready():
 	#sprite
 	# random number
 	#RandomNumberGenerator provides methods for generating pseudo-random numbers
 	var rng := RandomNumberGenerator.new()
+	ran_meteor = rng.randi_range(1,3)
+	
 	#path to our sprites
-	var path: String = "res://sprites/meteors/spr_meteor_" + str(rng.randi_range(1,3)) + ".png"
+	var path: String = "res://sprites/meteors/spr_meteor_" + str(ran_meteor) + ".png"
 	$spr_meteor.texture = load(path)
+	
+		
+
 	#getting room's width and height
 	var width = 320
 	var height = 240
@@ -31,4 +40,4 @@ func _process(delta):
 	rotation_degrees += rotation_speed * delta
 	
 func _on_body_entered(body):
-	pass
+	collision.emit()
